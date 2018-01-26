@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+	
+	<!--  import resource=""  导入外部资源文件 -->
+	
+	
+	<!-- bean 标签的作用 就是  需要实例化什么就配什么 实例化过程由AcO 容器来完成-->
+	<bean name="today" class="java.util.Date" />
+	
+	
+	<!-- 有构造参数对象的实例化 -->
+	<!--  constructor-arg : (配置constructor参数)
+		  index="" 第几个参数
+		  value="" 传递字符串类型的参数
+		  ref="" 传递对象类型的参数  -->
+	<bean name="userService" class="com.ek.spring.ch1.model3.service.UserManagerServiceImpl">
+		<constructor-arg ref="userdao" />
+	</bean>
+	<bean name="userdao" class="com.ek.spring.ch1.model3.dao.UserInfoDAOImpl"></bean>
+	
+	
+	<!-- bean的行为: -->
+	<!-- bean创建模式 默认是单根模式singleton , scope=prototype每次实例化产生新的实例-->
+	<!-- init-method 和  destroy-method 方法  在UserInfoVO添加这两个方法 -->
+	<bean name="userinfo"  class="com.ek.spring.ch1.vo.UserInfoVO" scope="prototype"  init-method="myInit"  destroy-method="myDestroy">
+		<property name="username" value="ekkk" ></property>
+		<property name="age" value="12"></property>
+		<property name="sex" value="true"></property>
+			<!-- 要注入对象用 ref -->
+	</bean>
+	
+	
+	<!-- 自动装配模式(自动注入的意思) autowire  byName 就是按照set注入的方法名称-->
+	<bean name="userService1"  autowire="byName"  class="com.ek.spring.ch1.model4.service.UserManagerServiceImpl"></bean>
+	<bean name="userdao1"  class="com.ek.spring.ch1.model4.dao.UserInfoDAOImpl"></bean>
+	
+	
+	<!-- 通过静态方法实例化 , AoC容器不会调用bean的构造方法去实例化 -->
+	<bean id="userService2" class="com.ek.spring.ch1.model5.service.UserManagerServiceImpl"  factory-method="myNewInstance"></bean>
+	
+	
+	<!-- 通过实例工厂实例化 -->
+	<bean id="daoFactory" class="com.ek.spring.ch1.model6.dao.DAOFactory"></bean>
+	<bean id="myUserDao" factory-bean="daoFactory" factory-method="getUserDAO"></bean> <!--相当于 daoFactory.getUserDAO()  -->
+	<bean id="userService3" class="com.ek.spring.ch1.model6.service.UserManagerServiceImpl" >
+		<property name="myUserDaoSer" ref="myUserDao"></property>
+	</bean>
+	
+	
+	<!-- 集合注入 -->
+	<bean id="moreComplexObject" class="com.ek.spring.ch1.model7.ComplexObject">
+  		<!-- results in a setAdminEmails(java.util.Properties) call -->
+  		<property name="adminEmails">
+    		<props>
+        		<prop key="administrator">administrator@somecompany.org</prop>
+        		<prop key="support">support@somecompany.org</prop>
+        		<prop key="development">development@somecompany.org</prop>
+    		</props>
+  		</property>
+  		<!-- results in a setSomeList(java.util.List) call -->
+  		<property name="someList">
+    		<list>
+        		<value>a list element followed by a reference</value>
+        		<ref bean="userinfo" />
+    		</list>
+  		</property>
+  		<!-- results in a setSomeMap(java.util.Map) call -->
+  		<property name="someMap">
+    		<map>
+        		<entry>
+            		<key>
+                	<value>yup an entry</value>
+            		</key>
+            		<value>just some string</value>
+        		</entry>
+        		<entry>
+            		<key>
+                		<value>yup a ref</value>
+            		</key>
+            		<ref bean="userinfo" />
+        		</entry>
+    		</map>
+  		</property>
+  		<!-- results in a setSomeSet(java.util.Set) call -->
+  		<property name="someSet">
+    		<set>
+        		<value>just some string</value>
+        		<ref bean="userinfo" />
+    		</set>
+  		</property>
+	</bean>
+</beans>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+	<!-- 指返回页面所使用的技术 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.InternalResourceView</value>		
+		</property>
+		<property name="prefix"> <!-- 注入的路径的前缀 -->
+			<value>/WEB-INF/ch4-jsp/</value>
+		</property>
+		<property name="suffix"> <!-- 注入的路径的后缀 -->
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	
+	
+	<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/login1.do">loginAction1</prop>	<!-- 配置访问路径 -->
+				<prop key="/login2.do">loginAction2</prop>
+				<prop key="/login3.do">loginAction3</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="loginAction1" class="com.ek.spring.ch4.action.LoginAction1">
+		<property name="success"><value>success</value></property> <!-- 注入的路径 上面设置了前缀和后缀-->
+		<property name="login"><value>login1</value></property>
+	</bean>
+	
+	<bean id="loginAction2" class="com.ek.spring.ch4.action.LoginAction2">
+		<!-- commandClass 是 BaseCommandController中的属性 作用是绑定表单对象 一般用他的子类SimpleFormController 在LoginAction3展示-->
+		<property name="commandClass" value="com.ek.spring.ch4.form.LoginForm"></property>
+		<property name="success"><value>success</value></property>
+		<property name="login"><value>login2</value></property>
+	</bean>
+	
+	<bean id="loginAction3" class="com.ek.spring.ch4.action.LoginAction3">
+		<!-- commandClass 是 BaseCommandController中的属性 作用是绑定表单对象 一般用他的子类SimpleFormController 在LoginAction3展示-->
+		<property name="commandClass" value="com.ek.spring.ch4.form.LoginForm"></property>
+		<!--  commandName-->
+		<property name="commandName" value="loginForm"></property>
+		<!-- 添加效验要给 BaseCommandController 的Validator属性  注入 -->
+		<property name="validator" ref="loginFormValidator"></property>
+		<!--  页面注入还用这个也可以
+		<property name="success"><value>success</value></property>
+		<property name="login"><value>login3</value></property>
+		-->
+		<!--  页面注入到SimpleFormController的属性里也可以 继承SimpleFormController就用这个-->
+		<property name="successView"><value>success</value></property> 
+		<property name="formView"><value>login3</value></property> 
+	</bean>
+	<!-- 效验类 -->
+	<bean id="loginFormValidator" class="com.ek.spring.ch4.form.LoginFormValidator"></bean>
+</beans>

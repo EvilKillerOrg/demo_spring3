@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+	<!-- 指返回页面所使用的技术 -->
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass">
+			<value>org.springframework.web.servlet.view.InternalResourceView</value>		
+		</property>
+		<property name="prefix">
+			<value>/WEB-INF/ch5-jsp/</value>
+		</property>
+		<property name="suffix"> 
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	
+	
+	<bean id="urlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/excelViewAction.do">excelViewAction</prop>
+				<prop key="/userInfo.do">userInfoAction</prop>	
+				<prop key="/userInfo1.do">paramMultiController</prop><!-- 通过paramMultiController注入delegate代理userInfoAction1 -->
+				<prop key="/userInfo2.do">userInfoAction2</prop><!-- 继承MultiActionController -->
+			</props>
+		</property>
+	</bean>
+	
+	
+	
+	<!-- excel -->
+	<bean id="excelViewAction" class="com.ek.spring.ch5.excel.action.ExcelViewAction">
+		<property name="successView" ref="excelView" /> <!-- 这里不能注入页面了 -->
+	</bean>
+	<!-- excel视图链 -->
+	<bean id="excelView" class="com.ek.spring.ch5.excel.view.ExcelView"></bean>
+	
+
+
+
+	 
+	<!-- fileupload -->
+	<bean id="userInfoAction" class="com.ek.spring.ch5.fileupload.action.UserInfoAction">
+		<property name="commandClass" value="com.ek.spring.ch5.fileupload.form.UserInfoForm"></property>
+		<property name="commandName" value="userInfoForm"></property>
+		<property name="successView" value="success"></property>
+		<property name="formView" value="userEdit"></property>
+	</bean>
+	<!-- 指定文件上传使用的技术 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="100000"></property>  <!-- 单位byte -->
+	</bean>
+	
+	
+	
+	
+	
+	<!-- MultiActionController 的配置 -->
+	<!-- paramResolver能够拦截 自己配置的这个method的方法 -->
+	<bean id="paramResolver" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName" value="method"></property>
+	</bean>
+	 
+	<!-- 1. 第一种配置 代理一下Action (这样配置不能绑定表单提交的数据) -->
+	<bean id="paramMultiController" class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
+		<property name="methodNameResolver" ref="paramResolver"></property> <!-- 注入paramResolver -->
+		<property name="delegate" ref="userInfoAction1"></property> <!-- 代理userInfoAction1 -->
+	</bean>
+	<!-- 这个是通过paramMultiController代理来访问的 所以访问的Action 在配urlMapping要配成paramMultiController -->
+	<bean id="userInfoAction1" class="com.ek.spring.ch5.multiaction.UserInfoAction1"></bean>
+	
+	
+	<!-- 2. 第二种配置 就不需要代理了 因为Action已经继承MultiActionController了 -->
+	<bean id="userInfoAction2" class="com.ek.spring.ch5.multiaction.UserInfoAction2">
+		<property name="methodNameResolver" ref="paramResolver"></property><!-- 注入paramResolver -->
+	</bean>
+</beans>

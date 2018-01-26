@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	<!-- 初始化回调 -->
+	<bean id="userInfoService" class="com.ek.spring.ch2.model1.service.UserInfoService">
+		<property name="myName" value="kkkkk"></property> <!-- 测试的时候去掉这行 -->
+	</bean>
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- BeanFactoryAware -->
+	<bean id="userService" class="com.ek.spring.ch2.model2.service.UserInfoService"></bean>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<!-- 继承 -->
+	<!-- 这个DAO 需要同时注入两个bean(dataSource 和 username) -->
+	<!-- userInfoDAO需要两个参数同时注入才可以实例化 这里不能肯定两个都注入了 
+		所以可以设置为   abstract="true" 使这里不能被实例化
+	 -->
+	<bean id="userInfoDAO" class="com.ek.spring.ch2.model3.dao.UserInfoDAO" abstract="true">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	
+	<!-- 这里继承上面的 并注入另一个username 以保障两个参数都有值
+		getBean的时候 get这个就可以了
+	-->
+	<bean id="userdao" parent="userInfoDAO">
+		<property name="username"> <value>eeekkk</value> </property>
+	</bean>
+	
+	
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"  value="com.mysql.jdbc.Driver" />    
+		<property name="url"  value="jdbc:mysql://localhost:3306/springdemo" />
+		<property name="username"  value="admin" />
+		<property name="password"  value="root" />  
+	</bean>
+	
+	
+	
+	
+	   
+	
+	
+	
+	<!-- 国际化 -->
+	<!-- id和实现类是固定的 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basenames">
+      <list>
+        <value>messages</value> <!-- 加载这messages一类资源文件 -->
+      </list>
+    </property>
+  </bean>
+  
+  
+  
+  
+  
+  <!-- Resource -->
+  <!-- ClassPathResource的构造器都是有参的 -->
+	<bean id="resource" class="org.springframework.core.io.ClassPathResource">
+		<constructor-arg><value>jdbc.properties</value> </constructor-arg>
+	</bean>
+</beans>

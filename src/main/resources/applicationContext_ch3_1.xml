@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	
+	 
+	<!-- 数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"  value="com.mysql.jdbc.Driver" />    
+		<property name="url"  value="jdbc:mysql://localhost:3306/springdemo" />
+		<property name="username"  value="root" />
+		<property name="password"  value="admin" />  
+	</bean>
+	
+	
+	
+	
+	
+	<!-- dataSourceTransactionManager还需要注入dataSource -->
+	<bean id="dataSourceTransactionManager"  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<constructor-arg ref="dataSource"></constructor-arg>
+	</bean>
+	<!-- TransactionTemplate 是类 是可以在这实例化的 这需要注入一个PlatformTransactionManager的实现-->
+ 	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+ 		<property name="transactionManager"  ref="dataSourceTransactionManager"></property>
+ 	</bean>
+ 	
+ 	
+ 	
+ 	
+ 	
+	<!-- 这个对象有一个需要传dataSource的构造方法 (set也可以注入进来,但是源码里没看到有setDataSource(); ) 
+		scope 要设置为 bean默认的scope是singleton
+	-->
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate" scope="prototype">
+		<property name="dataSource"  ref="dataSource"></property>
+	</bean>
+	
+	
+	
+	
+	
+	<bean id="userInfoDAO" class="com.ek.spring.ch3.model1.dao.UserInfoDAO">
+		<property name="myJdbcTemplate" ref="jdbcTemplate"></property>
+	</bean>
+	
+
+ 
+ 
+ 
+ 	<!-- 注入dao和事务 -->
+  	<bean id="userInfoService" class="com.ek.spring.ch3.model1.service.UserInfoService">
+  		<property name="myTransactionTemplate" ref="transactionTemplate"></property>
+ 		<constructor-arg ref="userInfoDAO"></constructor-arg>
+ 	</bean>
+</beans>
